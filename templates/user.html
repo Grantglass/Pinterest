@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Search Page</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/bulma@0.8.0/css/bulma.min.css" />
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+        integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <style>
+        #gotop {
+            display: none;
+            /* Hidden by default */
+            position: fixed;
+            /* Fixed/sticky position */
+            bottom: 20px;
+            /* Place the button at the bottom of the page */
+            right: 15px;
+            /* Place the button 30px from the right */
+            z-index: 99;
+            /* Make sure it does not overlap */
+            border-radius: 10px;
+        }
+
+        #auto_ select select {
+            width: 258px;
+            position: relative;
+            left: -17px;
+            margin: 0;
+            border: 1px solid #DDE1E4;
+            border-top: none;
+            font-size: 9pt;
+        }
+
+        #auto_ select option {
+            padding: 3px;
+        }
+
+        .img__wrap {
+            position: relative;
+            height: 200px;
+            width: 257px;
+        }
+
+        .img__description {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(29, 106, 154, 0.72);
+            color: #fff;
+            visibility: hidden;
+            opacity: 0;
+            font-size: 10px;
+            text-align: center;
+            /* transition effect. not necessary */
+            transition: opacity .2s, visibility .2s;
+        }
+
+        img {
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+
+        .img__wrap:hover .img__description {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .img_container {
+            position: relative;
+            display: none;
+        }
+
+        /* Expanding image text */
+
+        #imgtext {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            color: white;
+            font-size: 20px;
+        }
+
+        /* Closable button inside the image */
+
+        .closebtn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: white;
+            font-size: 35px;
+            cursor: pointer;
+        }
+    </style>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        function topFunction() {
+            $('html').animate({
+                scrollTop: 0
+            }, 'slow')
+            $('html, body').animate({
+                scrollTop: 0
+            }, 'slow')
+            // document.body.scrollTop = 0; // For Safari
+            // document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+        }
+
+
+        function myFunction(imgs) {
+            $("#fieldsearch").unbind("keypress")
+            doc_resp = JSON.parse(localStorage.getItem("doc_resp"));
+            $("#detailcol").css('display', 'flex')
+            let container = $(".img_container").css('display', 'block')
+            console.log('this is')
+            console.log(imgs)
+            // Get the expanded image
+            let expandImg = document.getElementById("expandedImg");
+            $(expandedImg).attr('class', 'is-128x128')
+
+            // Get the image text
+            var imgText = document.getElementById("imgtext");
+            // Use the same src in the expanded image as the image being clicked on from the grid
+            expandImg.src = $(imgs).prev().children('img').attr("src");;
+            // Use the value of the alt attribute of the clickable image as text inside the expanded image
+            expandedImg.innerHTML = imgs.innerHTML;
+            // Show the container element (hidden with CSS)
+            expandImg.parentElement.style.display = "block";
+
+
+            let current_picture_info = doc_resp.filter(e => Object.keys(e).includes('images')).filter(e => e.images[
+                '236x'].url == expandImg.src)[0]
+            console.log(current_picture_info)
+            let $searchbox = $('#keyitems')
+            $searchbox.empty()
+            let keystoshow = ['created_at', 'description', 'grid_title', 'is_promoted', 'is_uploaded']
+            pin_metadata = Object.keys(current_picture_info)
+            Object.keys(current_picture_info).map(function (key) {
+                // console.log(key)
+                // console.log(current_picture_info[key])
+                if (keystoshow.includes(key)) {
+                    let $outer = $(
+                        '<a class="panel-block is-active"> <span class="panel-icon"> <i class="fa fa-paper-plane" aria-hidden="true"></i></span><strong>' +
+                        key + '</strong>' + '&nbsp;&nbsp;&nbsp;' + JSON.stringify(current_picture_info[
+                            key]) + ' </a>')
+
+                    $searchbox.append($outer)
+
+
+
+                }
+
+
+            })
+
+            $("#fieldsearch").autocomplete({
+                source: pin_metadata
+            });
+            // function autocomplete(val) {
+            //     let res_return = [];
+
+            //     for (i = 0; i < pin_metadata.length; i++) {
+            //         if (val === pin_metadata[i].slice(0, val.length)) {
+            //             res_return.push(pin_metadata[i]);
+            //         }
+            //     }
+
+            //     return res_return;
+            // }
+
+            // $("#fieldsearch").keyup(function (e) {
+            //     input_val = $("#fieldsearch").val(); // updates the variable on each ocurrence
+            //     console.log(input_val)
+            //     console.log(pin_metadata)
+            //     if (input_val.length > 0) {
+            //         var res_to_show = [];
+
+            //         autocomplete_results = document.getElementById("autocomplete-results");
+            //         autocomplete_results.innerHTML = '';
+            //         res_to_show = autocomplete(input_val);
+            //         console.log(res_to_show)
+            //         $select = $('<select multiple size=8 id="auto_select" class="select"></select>')
+            //         $("#autocomplete-results").append($select)
+            //         for (i = 0; i < res_to_show.length; i++) {
+            //             console.log('for loop')
+            //             $option = $('<option> </option>')
+            //             $option.attr('value', res_to_show[i])
+            //             $option.text(res_to_show[i])
+            //             $select.append($option);
+
+            //         }
+            //         autocomplete_results.style.display = 'block';
+            //     } else {
+            //         console.log('nooo for loop')
+            //         res_to_show = [];
+            //         autocomplete_results.innerHTML = '';
+            //     }
+            // })
+
+            $('#fieldsearch').keypress(function (event) {
+                let keycode = (event.keyCode ? event.keyCode : event.which);
+                if (keycode == '13') {
+                    // console.log('enter')
+                    // console.log($('#fieldsearch').val())
+                    let new_field = $('#fieldsearch').val()
+                    console.log("new_field")
+                    console.log(new_field)
+                    console.log(current_picture_info)
+                    let $outer_n = $(
+                        '<a class="panel-block is-active"> <span class="panel-icon"> <i class="fa fa-paper-plane" aria-hidden="true"></i></span><strong>' +
+                        new_field + '</strong>' + '&nbsp;&nbsp;&nbsp;' + JSON.stringify(
+                            current_picture_info[
+                                new_field]) + ' </a>')
+
+                    $searchbox.append($outer_n)
+
+                }
+            });
+
+            // $('#auto_select :selected').change(function () {
+
+            //     $('#fieldsearch').val($("#auto_select :selected").val());
+            //     hide_select();
+            // });
+
+
+
+            /* when user wants to type in text field, hide DDL */
+            // input = document.querySelector('input');
+            // input.addEventListener('focus', hide_select);
+
+            // function hide_select() {
+            //     datalist.style.display = '';
+            //     button.textContent = "▼";
+            // }
+
+
+            const colorThief = new ColorThief();
+
+            let domin_color, colorpa;
+            const img = new Image();
+
+            img.addEventListener('load', function () {
+
+
+                domin_color = colorThief.getColor(img)
+                colorpa = colorThief.getPalette(img, 5)
+
+                $('#swatch').css('border-radius', '50%')
+                $('#swatch').css('height', '30px')
+                $('#swatch').css('width', '30px')
+
+                $('#swatch').css('display', "inline-block")
+                $('#swatch').css('background-color', 'rgb(' + domin_color[0] + ',' + domin_color[1] + ',' +
+                    domin_color[2] + ')')
+
+                $pa = $('.pa_swatches')
+                $pa.empty()
+                colorpa.forEach(function (e) {
+                    let $color = $('<span>')
+                    $color.css('background-color', 'rgb(' + e[0] + ',' + e[1] + ',' + e[2] + ')')
+                    $color.css('border-radius', '50%')
+                    $color.css('height', '30px')
+                    $color.css('width', '30px')
+                    $color.css('display', "inline-block")
+                    $pa.append($color)
+                })
+
+            });
+
+
+
+
+
+
+            let imageURL = expandImg.src;
+            let googleProxyURL =
+                'https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=2592000&url=';
+
+            img.crossOrigin = 'Anonymous';
+            img.src = googleProxyURL + encodeURIComponent(imageURL);
+
+
+
+
+        }
+    </script>
+    <script src="{{url_for('static', filename='vibrant.js')}}"></script>
+
+</head>
+
+<body>
+    <button class="button is-info is-light" onclick="topFunction()" id="gotop" title="Go to top">Top</button>
+    <section class="hero is-small is-info is-bold">
+        <div class="hero-body">
+            <div class="container">
+                <h2 class="subtitle">
+                    Enter keywords in the query box below. Your account infomation and data appear below on the left.
+                    Search results will appear on the right. You can download your information and search result images.
+                    After conducting a search, you can further explore the results on the Analysis page.
+                </h2>
+            </div>
+        </div>
+    </section>
+
+
+    <div class="container">
+        <div id="flow">
+            <span class="flow-1"></span>
+            <span class="flow-2"></span>
+            <span class="flow-3"></span>
+        </div>
+
+        <div class="section">
+
+            <div class="box">
+                <div class="field has-addons">
+                    <div class="control is-expanded">
+                        <input id="query" class="input has-text-centered"
+                            placeholder="» » » » » » put your query here « « « « « «">
+                    </div>
+                    <!--
+                    <div class="control">
+                        <div class="select is-info">
+                            <select>
+                                <option>1000</option>
+                                <option>500</option>
+                            </select>
+                        </div>
+                    </div>
+-->
+                    <div class="control">
+                        <a class="button is-info" id='sub_btn'>Search</a>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class='detail columns is-mobile is-multiline is-centered' id='detailcol' style="display: none">
+                <span onclick="this.parentElement.style.display='none'" class="closebtn">&times;</span>
+                <div class="column is-half-mobile">
+
+                    <div class="img_container">
+                        <!-- Close the image -->
+
+
+                        <!-- Expanded image -->
+                        <img id="expandedImg">
+
+                        <!-- Image text -->
+                        <div class="output-layout has-text-centered">
+                            <div class="function get-color">
+                                <h3 class="function-title">Dominant Color</h3>
+
+                                <div class="swatches">
+                                    <span id="swatch"></div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="output-layout has-text-centered">
+                        <div class="function get-color">
+                            <h3 class="function-title">Color Palette</h3>
+
+                            <div class="pa_swatches">
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-half-mobile">
+                    <nav class="panel" style="display:'none'">
+                        <p class="panel-heading">
+                            Pin Info
+                        </p>
+                        <div class="panel-block" id='parasearch'>
+                            <p class="control has-icons-left">
+                                <input class="input" type="text" id="fieldsearch"
+                                    placeholder="Pin Metadata Serch: Put any words here to see if there are matched attributes">
+                                <datalist id="autocomplete-results">
+
+                                </datalist>
+                                <span class="icon is-left">
+                                    <i class="fa fa-search" aria-hidden="true"></i>
+                                </span>
+                            </p>
+                        </div>
+                        <div id='keyitems' style="overflow-y: auto">
+                        </div>
+                        <div class="panel-block" style="display:none">
+                            <button class="button is-link is-outlined is-fullwidth">
+                                Reset all filters
+                            </button>
+                        </div>
+
+                    </nav>
+
+
+
+                </div>
+
+                </section>
+            </div>
+            <br>
+            <!-- Developers -->
+            <div class="row columns">
+                <div class="column is-half">
+                    <div class="card large">
+                        <div class="control has-text-centered">
+                            <a href="/account "><button class="button is-info is-centered" id='info_btn'
+                                    style="margin-left: auto;  margin-right: 15pt;margin-top: 15pt"
+                                    href="/account">Download my Info
+                                </button></a>
+                            <a href="/analysis "><button class="button is-info is-centered"
+                                    style="margin-left: auto;  margin-right: auto;margin-top: 15pt" href="/analysis">Go
+                                    to the Analysis Page
+                                </button></a>
+                        </div>
+                        <div class="card-content">
+                            <div class="media">
+                                <div class="media-left">
+                                    <figure class="image is-96x96">
+                                        <img src="{{data.image_medium_url}}" alt="Image">
+                                    </figure>
+                                </div>
+                                <div class="media-content">
+                                    <p class="title is-4 no-padding">{{data.full_name}}</p>
+                                    <p><span class="title is-6">
+                                            <p class="subtitle is-6" style="margin-bottom:0">Account Name:</p><a
+                                                href="{{data.website_url}}">{{data.username}}</a>
+                                        </span></p>
+
+                                </div>
+                            </div>
+                            <div class="content">
+                                {{data.about}}
+                                <div class="background-icon"><span class="icon-twitter"></span></div>
+                            </div>
+
+                            <div class="field is-grouped is-grouped-multiline">
+                                {% for key in data.keys() %}
+                                <div class="control">
+                                    <div class="tags has-addons">
+                                        <span class="tag is-info">{{key}}</span>
+                                        <span class="tag is-light">{{data[key]}}</span>
+                                    </div>
+                                </div>
+                                {% endfor%}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-half">
+                    <div class="has-text-centered">
+                        <button class="button is-link is-light" id='downloadpic' style="display:none">Download Images to Server
+                        </button>
+                        <button class="button is-link is-light" id='analysis_pic' style="display:none">Go to the
+                            Analysis Page</button>
+                    </div>
+                    <br>
+
+                    <div class="card large" id='grid'>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <!-- End Developers -->
+
+
+    </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="content has-text-centered">
+                <div class="soc">
+                    <a href="#"><i class="fa fa-github-alt fa-2x" aria-hidden="true"></i></a>
+
+                </div>
+                <p>
+                    <strong>Initiated</strong> by <a href="https://cdh.unc.edu/">Digital Innovation Lab</a>.
+                    <br>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        $(document).ready(function () {
+            let doc_resp;
+            let doc_imgs;
+            let doc_desc;
+            let counter;
+            let pin_metadata;
+
+            $('#downloadpic').click(function () {
+
+                let q = $('#query').val();
+                $('#downloadpic').attr('class', "button is-link is-light is-loading")
+                $('#downloadpic').text('Downloading')
+                $('#analysis_pic').css('display', 'inline')
+                $.ajax({
+                    url: "/download",
+                    type: "post",
+                    data: {
+                        query: q,
+                        doc_imgs
+                    },
+                    success: function (response) {
+                        $('#downloadpic').attr('class', "button is-link is-light ")
+                        $('#analysis_pic').attr('class', "button is-link is-light")
+                        $('#analysis_pic').css('display', 'inline')
+                        $('#downloadpic').text('Successfully download ' + doc_imgs.length +
+                            ' images');
+                        $("#downloadpic").append($(
+                            '<span class="icon is-small"> <i class="fa fa-check"></i></span>'
+                        ))
+
+
+
+                    },
+                    error: function () {
+                        $('#downloadpic').text('not successful');
+                    }
+
+                })
+            })
+
+            $('#analysis_pic').click(function () {
+                console.log('go to analysis')
+                // $('#analysis_pic').attr('class', "button is-link is-light")
+                $.ajax({
+                    url: "/analysis",
+                    type: "get",
+                    data: {
+                        query: 'get'
+                    }
+
+
+
+
+                }).done(function () {
+                    window.location.replace('/analysis')
+                })
+            })
+
+
+            $('#info_btn').click(function () {
+                console.log('info down')
+                $('#info_btn').text('Successfully download ')
+
+
+
+
+
+
+            })
+
+
+
+            $('#sub_btn').click(function () {
+
+                let q = $('#query').val();
+                $.ajax({
+                    url: "/login",
+                    type: "get",
+                    data: {
+                        query: q
+                    },
+                    success: function (response) {
+                        $('#downloadpic').css('display', 'inline')
+                        doc_resp = response
+                        $('#grid').empty()
+
+                        let imgs = response.filter(e => Object.keys(e).includes(
+                            'images')).map(e => e.images['236x'].url)
+                        let desc = response.filter(e => Object.keys(e).includes(
+                            'images')).map(e => e.description)
+
+                        doc_imgs = imgs;
+                        doc_desc = desc;
+                        localStorage.setItem("doc_resp", JSON.stringify(
+                            doc_resp));
+
+                        let $grid = $('#grid')
+                        let $pictures = $(
+                            '<div style="padding:10px" class="columns is-multiline is-mobile" id="pictures">'
+                        )
+                        for (var i = 0; i < 16; i++) {
+                            let myHTML = $(
+                                '<div class="column is-one-quarter img__wrap"> <figure class="image is-128x128"> <img class="image is-128x128" src=' +
+                                doc_imgs[i] +
+                                '></figure>   <p class="img__description" onclick="myFunction(this);">' +
+                                doc_desc[i] + '</p></div>');
+                            $pictures.append(myHTML)
+                        }
+                        $grid.append($pictures)
+                        counter = 16
+
+                    },
+                    error: function () {
+                        //Do Something to handle error
+
+                    }
+                });
+
+
+
+            });
+
+            mybutton = document.getElementById("gotop");
+
+            // When the user scrolls down 20px from the top of the document, show the button
+            window.onscroll = function () {
+                scrollFunction()
+            };
+
+            function scrollFunction() {
+                if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+                    mybutton.style.display = "block";
+                } else {
+                    mybutton.style.display = "none";
+                }
+            }
+
+            // When the user clicks on the button, scroll to the top of the document
+            function topFunction() {
+                document.body.scrollTop = 0; // For Safari
+                document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+            }
+
+
+
+            $(window).scroll(function () {
+
+                if ($(document).height() - $(this).height() / $(this).scrollTop() > 0.97) {
+                    console.log("should load");
+                    let $grid = $('#grid')
+                    let $pic_grid = $('#pictures')
+                    if (counter > doc_imgs.length - 16) {
+
+                    } else {
+                        for (let i = counter; i < counter + 16; i += 1) {
+                            let myHTML = $(
+                                '<div class="column is-one-quarter img__wrap"> <figure class="image is-128x128"> <img class="image is-128x128" src=' +
+                                doc_imgs[i] +
+                                '></figure>   <p class="img__description" onclick="myFunction(this);">' +
+                                doc_desc[i] + '</p></div>');
+
+                            $pic_grid.append(myHTML)
+                            $grid.append($pic_grid)
+                        }
+                        counter = counter + 16;
+                        console.log('end of the lopp')
+                        console.log(counter)
+                    }
+                }
+
+            });
+
+
+
+
+
+
+
+
+
+        });
+    </script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,9 @@
+{
+    "python.pythonPath": "C:\\Users\\Reich\\AppData\\Local\\Programs\\Python\\Python38\\python.exe",
+    "files.autoSave": "afterDelay",
+    "python.venvPath": "~/env",
+    "python.linting.pylintEnabled": false,
+    "python.linting.enabled": true,
+    "python.linting.pylamaEnabled": true,
+    "python.formatting.provider": "yapf"
+}

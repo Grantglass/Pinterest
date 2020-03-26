@@ -1,0 +1,14 @@
+flask
+requests
+bs4
+flask_fontawesome
+requests_toolbelt
+gunicorn
+wordcloud
+matplotlib
+pandas
+sklearn
+wheel
+uwsgi
+google-cloud-vision
+google-cloud
